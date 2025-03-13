@@ -14,42 +14,37 @@ import requests
 import re
 import time
 import random
-try:
-    import config
-except ImportError:
+import sys
+import importlib.util
+
+# Function to dynamically load a configuration file
+def load_config(config_file):
+    """Load a configuration file dynamically."""
+    try:
+        # Load the configuration file as a module
+        spec = importlib.util.spec_from_file_location("config", config_file)
+        config = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(config)
+        return config
+    except Exception as e:
+        print(f"Error loading configuration file '{config_file}': {e}")
+        sys.exit(1)
+
+
+# Check if a configuration file is provided as a command-line argument
+if len(sys.argv) != 2:
+    print("Usage: python3 gen.py <config_file>")
+    sys.exit(1)
+
+# Load the configuration file
+config_file = sys.argv[1]
+config = load_config(config_file)
     
-    class ConfigClass:  # minimal config incase you don't have the config.py
-        MAX_DEPTH = 10  # dive no deeper than this for each root URL
-        MIN_DEPTH = 3   # dive at least this deep into each root URL
-        MAX_WAIT = 10   # maximum amount of time to wait between HTTP requests
-        MIN_WAIT = 5    # minimum amount of time allowed between HTTP requests
-        DEBUG = False    # set to True to enable useful console output
-
-        # use this single item list to test how a site responds to this crawler
-        # be sure to comment out the list below it.
-        #ROOT_URLS = ["https://digg.com/"]
-        ROOT_URLS = [
-            "https://www.reddit.com"
-        ]
-
-        # items can be a URL "https://t.co" or simple string to check for "amazon"
-        blacklist = [
-            'facebook.com',
-            'pinterest.com'
-        ]
-
-        # must use a valid user agent or sites will hate you
-        USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) ' \
-            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
-    config = ConfigClass
-
-
 class Colors:
     RED = '\033[91m'
     YELLOW = '\033[93m'
     PURPLE = '\033[95m'
     NONE = '\033[0m'
-
 
 def debug_print(message, color=Colors.NONE):
     """ A method which prints if DEBUG is set """
