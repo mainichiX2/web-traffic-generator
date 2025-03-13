@@ -1,23 +1,83 @@
+import os
+import re
+from urllib.parse import urlparse
+
+# Constants
 MAX_DEPTH = 10  # maximum click depth
 MIN_DEPTH = 3 # minimum click depth
 MAX_WAIT = 10  # maximum amount of time to wait between HTTP requests
 MIN_WAIT = 5  # minimum amount of time allowed between HTTP requests
 DEBUG = False  # set to True to enable useful console output
 
-# use this single item list to test how a site responds to this crawler
-# be sure to comment out the list below it.
-#ROOT_URLS = ["https:///digg.com/"]
+# Function to validate URLs
+def is_valid_url(url):
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])  # Ensure scheme (e.g., http) and netloc (e.g., domain) are present
+    except ValueError:
+        return False
 
-ROOT_URLS = [
-	"https://digg.com/",
-	"https://www.yahoo.com",
-	"https://www.reddit.com",
-	"http://www.cnn.com",
-	"http://www.ebay.com",
-	"https://en.wikipedia.org/wiki/Main_Page",
-	"https://austin.craigslist.org/"
-	]
+# Advanced function to read URLs from a file by path
+def read_urls_from_file(file_path):
+    urls = []
+    try:
+        with open(file_path, 'r') as file:
+            for line in file:
+                line = line.strip()
+                if line and not line.startswith('#'):  # Skip empty lines and comments (lines starting with #)
+                    # Handle CSV files (if the file is a CSV, split by comma)
+                    if file_path.endswith('.csv'):
+                        for part in line.split(','):
+                            part = part.strip()
+                            if is_valid_url(part):
+                                urls.append(part)
+                    else:  # Assume plain text file with one URL per line
+                        if is_valid_url(line):
+                            urls.append(line)
+    except FileNotFoundError:
+        print(f"Error: File not found at path '{file_path}'")
+    except Exception as e:
+        print(f"Error reading file '{file_path}': {e}")
+    return urls
 
+# Function to read URLs from all files in a folder
+def load_urls_from_folder(folder_path):
+    urls = []
+    if not os.path.exists(folder_path):
+        print(f"Error: Folder not found at path '{folder_path}'")
+        return urls
+
+    for filename in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, filename)
+        if os.path.isfile(file_path):
+            urls.extend(read_urls_from_file(file_path))
+    return urls
+
+# Path to the folder containing URL files
+url_folder_path = 'path/to/your/url/folder'
+
+# Path to the file containing URL files
+url_file_path = 'path/to/your/url/folder/urls-file.txt'
+
+# Uncomment the part that is use cases
+# Load URLs from the folder
+ROOT_URLS = load_urls_from_folder(url_folder_path)
+
+# Load URLs from the file
+# ROOT_URLS = read_urls_from_file(url_file_path)
+
+# If you want to keep some default URLs, you can extend the list
+default_urls = [
+    "https://digg.com/",
+    "https://www.yahoo.com",
+    "https://www.reddit.com",
+    "http://www.cnn.com",
+    "http://www.ebay.com",
+    "https://en.wikipedia.org/wiki/Main_Page",
+    "https://austin.craigslist.org/"
+]
+
+ROOT_URLS.extend(default_urls)
 
 # items can be a URL "https://t.co" or simple string to check for "amazon"
 blacklist = [
