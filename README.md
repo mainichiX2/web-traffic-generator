@@ -34,6 +34,32 @@ radomly selected between MIN_DEPTH and MAX_DEPTH.
 
 - `userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3).......'` You guessed it, the user-agent our headless browser hands over to the web server. You can probably leave it set to the default, but feel free to change it. I would strongly suggest using a common/valid one or else you'll likely get rate-limited quick.
 
+## Changes from original
+The script now expects a configuration file as a command-line argument. The `config.py.template` is well documented.
+The file(s) with URL's content must have url on the each new line.
+For example `url-part1.txt`
+```
+https://www.rekruter.de/
+https://www.replicated.com/
+https://www.resmed.com/
+https://www.revolut.com/
+https://www.ribose.com/
+https://www.ricoh.ca/
+https://www.ripe.net/
+https://www.riskalyze.com/
+https://www.robeco.com/
+https://www.rockwellautomation.com/
+https://www.royalihc.com/
+https://www.rtbf.be/
+https://www.rust-lang.org/
+https://www.sailthru.com/
+https://www.salestrail.io/
+https://www.samsara.com/
+https://www.sanity.io/
+...
+```
+The config can read a folder with bunch of files or particular file.
+
 ## Dependencies
 
 Only thing you need and *might* not have is `requests`. Grab it with
@@ -53,7 +79,7 @@ cp config.py.template config.py
 Run the generator:
 
 ```bash
-python gen.py
+python gen.py config.py
 ```
 
 ## Troubleshooting and debugging
